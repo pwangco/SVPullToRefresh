@@ -97,19 +97,19 @@ static char UIScrollViewPullToRefreshView;
     self.pullToRefreshView.hidden = !showsPullToRefresh;
     
     if(!showsPullToRefresh) {
-      if (self.pullToRefreshView.isObserving) {
-        [self removeObserver:self.pullToRefreshView forKeyPath:@"contentOffset"];
-        [self removeObserver:self.pullToRefreshView forKeyPath:@"frame"];
-        [self.pullToRefreshView resetScrollViewContentInset];
-        self.pullToRefreshView.isObserving = NO;
-      }
+        if (self.pullToRefreshView.isObserving) {
+            [self removeObserver:self.pullToRefreshView forKeyPath:@"contentOffset"];
+            [self removeObserver:self.pullToRefreshView forKeyPath:@"frame"];
+            [self.pullToRefreshView resetScrollViewContentInset];
+            self.pullToRefreshView.isObserving = NO;
+        }
     }
     else {
-      if (!self.pullToRefreshView.isObserving) {
-        [self addObserver:self.pullToRefreshView forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:nil];
-        [self addObserver:self.pullToRefreshView forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
-        self.pullToRefreshView.isObserving = YES;
-      }
+        if (!self.pullToRefreshView.isObserving) {
+            [self addObserver:self.pullToRefreshView forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:nil];
+            [self addObserver:self.pullToRefreshView forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
+            self.pullToRefreshView.isObserving = YES;
+        }
     }
 }
 
@@ -146,28 +146,29 @@ static char UIScrollViewPullToRefreshView;
         self.showsDateLabel = NO;
         
         self.titles = [NSMutableArray arrayWithObjects:NSLocalizedString(@"Pull to refresh...",),
-                                                       NSLocalizedString(@"Release to refresh...",),
-                                                       NSLocalizedString(@"Loading...",),
-                                                       nil];
+                       NSLocalizedString(@"Release to refresh...",),
+                       NSLocalizedString(@"Loading...",),
+                       nil];
         
         self.subtitles = [NSMutableArray arrayWithObjects:@"", @"", @"", @"", nil];
         self.viewForState = [NSMutableArray arrayWithObjects:@"", @"", @"", @"", nil];
+        self.alpha = 0;
     }
-
+    
     return self;
 }
 
-- (void)willMoveToSuperview:(UIView *)newSuperview { 
+- (void)willMoveToSuperview:(UIView *)newSuperview {
     if (self.superview && newSuperview == nil) {
         //use self.superview, not self.scrollView. Why self.scrollView == nil here?
         UIScrollView *scrollView = (UIScrollView *)self.superview;
         if (scrollView.showsPullToRefresh) {
-          if (self.isObserving) {
-            //If enter this branch, it is the moment just before "SVPullToRefreshView's dealloc", so remove observer here
-            [scrollView removeObserver:self forKeyPath:@"contentOffset"];
-            [scrollView removeObserver:self forKeyPath:@"frame"];
-            self.isObserving = NO;
-          }
+            if (self.isObserving) {
+                //If enter this branch, it is the moment just before "SVPullToRefreshView's dealloc", so remove observer here
+                [scrollView removeObserver:self forKeyPath:@"contentOffset"];
+                [scrollView removeObserver:self forKeyPath:@"frame"];
+                self.isObserving = NO;
+            }
         }
     }
 }
@@ -189,7 +190,7 @@ static char UIScrollViewPullToRefreshView;
     CGRect arrowFrame = self.arrow.frame;
     arrowFrame.origin.x = ceilf(remainingWidth*position);
     self.arrow.frame = arrowFrame;
-
+    
     self.activityIndicatorView.center = self.arrow.center;
     
     for(id otherView in self.viewForState) {
@@ -263,7 +264,7 @@ static char UIScrollViewPullToRefreshView;
 
 #pragma mark - Observing
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {    
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if([keyPath isEqualToString:@"contentOffset"])
         [self scrollViewDidScroll:[[change valueForKey:NSKeyValueChangeNewKey] CGPointValue]];
     else if([keyPath isEqualToString:@"frame"])
@@ -271,6 +272,13 @@ static char UIScrollViewPullToRefreshView;
 }
 
 - (void)scrollViewDidScroll:(CGPoint)contentOffset {
+    if(contentOffset.y<self.originalTopInset && contentOffset.y+self.originalTopInset<0){
+        self.alpha = fabs((contentOffset.y+ self.originalTopInset)/ self.bounds.size.height);
+    }
+    else{
+        self.alpha = 0;
+    }
+    
     if(self.state != SVPullToRefreshStateLoading) {
         CGFloat scrollOffsetThreshold = self.frame.origin.y-self.originalTopInset;
         
