@@ -188,7 +188,6 @@ static char UIScrollViewPullToRefreshView;
         self.subtitles = [NSMutableArray arrayWithObjects:@"", @"", @"", @"", nil];
         self.viewForState = [NSMutableArray arrayWithObjects:@"", @"", @"", @"", nil];
         self.wasTriggeredByUser = YES;
-        self.alpha = 0;
     }
     
     return self;
@@ -392,13 +391,6 @@ static char UIScrollViewPullToRefreshView;
 }
 
 - (void)scrollViewDidScroll:(CGPoint)contentOffset {
-    if(contentOffset.y<self.originalTopInset && contentOffset.y+self.originalTopInset<0){
-        self.alpha = fabs((contentOffset.y+ self.originalTopInset)/ self.bounds.size.height);
-    }
-    else{
-        self.alpha = 0;
-    }
-    
     if(self.state != SVPullToRefreshStateLoading) {
         CGFloat scrollOffsetThreshold = 0;
         switch (self.position) {
