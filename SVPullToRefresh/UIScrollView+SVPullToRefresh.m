@@ -226,6 +226,7 @@ static char UIScrollViewPullToRefreshView;
                 break;
                 
             case SVPullToRefreshStateTriggered:
+                //[self.activityIndicatorView startAnimating];
                 [self rotateArrow:(float)M_PI hide:NO];
                 break;
                 
@@ -418,6 +419,10 @@ static char UIScrollViewPullToRefreshView;
 
 - (void)setActivityIndicatorViewStyle:(UIActivityIndicatorViewStyle)viewStyle {
     self.activityIndicatorView.activityIndicatorViewStyle = viewStyle;
+}
+
+- (void)setActivityIndicatorViewColor:(UIColor *)color {
+    [self.activityIndicatorView setColor:color];
 }
 
 - (void)setLastUpdatedDate:(NSDate *)newLastUpdatedDate {

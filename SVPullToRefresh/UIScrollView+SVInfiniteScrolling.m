@@ -239,6 +239,9 @@ UIEdgeInsets scrollViewOriginalContentInsets;
 - (void)setActivityIndicatorViewStyle:(UIActivityIndicatorViewStyle)viewStyle {
     self.activityIndicatorView.activityIndicatorViewStyle = viewStyle;
 }
+- (void)setActivityIndicatorViewColor:(UIColor *)color {
+    [self.activityIndicatorView setColor:color];
+}
 
 #pragma mark -
 
